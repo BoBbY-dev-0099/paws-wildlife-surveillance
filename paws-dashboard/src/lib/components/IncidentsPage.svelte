@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { AlertTriangle, CheckCircle, XCircle } from 'lucide-svelte';
+  import { API_BASE_URL } from '$lib/config';
   
   let incidents = [];
   let filterStatus = 'all';
@@ -9,7 +10,7 @@
   async function fetchIncidents() {
     loading = true;
     try {
-      const res = await fetch('http://localhost:8000/api/incidents');
+      const res = await fetch('${API_BASE_URL}/api/incidents');
       if (res.ok) {
         incidents = await res.json();
       }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
+  import { API_BASE_URL } from '$lib/config';
   import DashboardLayout from '$lib/components/DashboardLayout.svelte';
   import LiveFeedPage from '$lib/components/LiveFeedPage.svelte';
   import IncidentsPage from '$lib/components/IncidentsPage.svelte';
@@ -15,7 +16,7 @@
   
   async function fetchIncidentCount() {
     try {
-      const res = await fetch('http://localhost:8000/api/incidents');
+      const res = await fetch('${API_BASE_URL}/api/incidents');
       if (res.ok) {
         const data = await res.json();
         incidentCount = data.length;

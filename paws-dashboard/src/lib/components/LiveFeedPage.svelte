@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { Camera, Activity, Brain, Network, Radio, AlertTriangle, Volume2, Phone, X, Plus, Trash2, Edit2, Save, Play, Square } from 'lucide-svelte';
+  import { API_BASE_URL } from '$lib/config';
   
   // Dynamic import for Hls to prevent SSR crashes
   let Hls: any;
@@ -47,7 +48,7 @@
   
   async function loadCameras() {
     try {
-      const res = await fetch('http://localhost:8000/api/streams');
+      const res = await fetch('${API_BASE_URL}/api/streams');
       if (res.ok) {
         cameras = await res.json();
         if (!selectedCamera && cameras.length > 0) {
@@ -161,7 +162,7 @@
     }];
     
     try {
-      const res = await fetch(`http://localhost:8000/api/streams/${streamId}/start`, {
+      const res = await fetch(`${API_BASE_URL}/api/streams/${streamId}/start`, {
         method: 'POST'
       });
       
@@ -190,7 +191,7 @@
     inferenceInProgress = inferenceInProgress;
     
     try {
-      const res = await fetch(`http://localhost:8000/api/streams/${streamId}/stop`, {
+      const res = await fetch(`${API_BASE_URL}/api/streams/${streamId}/stop`, {
         method: 'POST'
       });
       
@@ -217,7 +218,7 @@
     
     isSavingStream = true;
     try {
-      const res = await fetch('http://localhost:8000/api/streams', {
+      const res = await fetch('${API_BASE_URL}/api/streams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(streamForm)
@@ -253,7 +254,7 @@
         await stopInference(streamId);
       }
       
-      const res = await fetch(`http://localhost:8000/api/streams/${streamId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/streams/${streamId}`, {
         method: 'DELETE'
       });
       
@@ -274,7 +275,7 @@
   
   async function fetchIncidents() {
     try {
-      const res = await fetch('http://localhost:8000/api/incidents');
+      const res = await fetch('${API_BASE_URL}/api/incidents');
       if (res.ok) {
         const data = await res.json();
         incidents = data;
@@ -304,7 +305,7 @@
       eventSource.close();
     }
     
-    eventSource = new EventSource('http://localhost:8000/api/sse');
+    eventSource = new EventSource('${API_BASE_URL}/api/sse');
     
     eventSource.addEventListener('pipeline', (event) => {
       console.log('📊 Pipeline event raw:', event.data);

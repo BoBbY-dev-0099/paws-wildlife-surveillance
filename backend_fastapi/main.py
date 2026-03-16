@@ -1395,9 +1395,11 @@ async def voice_query(request: Request):
 # -----------------------------
 if __name__ == "__main__":
     import uvicorn
+    import os
+    port = int(os.getenv("PORT", 8000))
     print("\n🚀 Starting PAWS Backend Server...")
-    print(f"📡 API will be available at: http://localhost:8000")
-    print(f"📚 API docs at: http://localhost:8000/docs")
+    print(f"📡 API will be available at: http://localhost:{port}")
+    print(f"📚 API docs at: http://localhost:{port}/docs")
     print(f"🔔 Push notifications: ntfy.sh/{NTFY_TOPIC}\n")
     
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

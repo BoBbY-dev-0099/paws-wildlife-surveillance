@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd paws-dashboard && npm install && npm run build",
+  "outputDirectory": "paws-dashboard/.svelte-kit",
+  "framework": "sveltekit"
+}
