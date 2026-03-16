@@ -1,333 +1,149 @@
-# 🐾 PAWS — Perimeter AI Wildlife Surveillance
+# PAWS — Perimeter AI Wildlife Surveillance
 
-**The world sleeps. PAWS doesn't.**
+Real-time wildlife intrusion detection system that protects farmland using computer vision and Amazon Nova foundation models. PAWS connects any IP camera to a GPU-accelerated inference pipeline, classifies threats via multi-modal AI analysis, and dispatches multi-channel alerts — all within seconds.
 
-A real-time wildlife threat detection and alert system powered by AWS Nova AI, designed to protect farms from dangerous wildlife while enabling coexistence through intelligent deterrents and community mesh alerts.
+Built for the **Amazon Nova Hackathon 2026**.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
-![AWS Nova](https://img.shields.io/badge/AWS-Nova%20AI-orange)
-![License](https://img.shields.io/badge/license-MIT-green)
-
-## 🌟 Features
-
-### 🧠 AI-Powered Detection
-- **Amazon Nova Lite Vision** - Multimodal threat analysis from camera frames
-- **Amazon Nova Embeddings** - Behavior pattern matching across historical incidents
-- **Amazon Polly** - Multilingual voice alerts (6 languages)
-- **14-step autonomous pipeline** - From detection to deterrent in < 5 seconds
-
-### 📡 Real-Time Monitoring
-- **Live SSE stream** - Watch every pipeline step in real-time
-- **SvelteKit dashboard** - Beautiful, responsive UI with live updates
-- **Voice playback** - Listen to generated alerts inline
-- **Incident history** - Expandable cards with full Nova analysis
-
-### 🚨 Multi-Channel Alerts
-- **Ntfy.sh** - Free push notifications (web + mobile)
-- **Telegram** - Rich messages with photos and inline feedback buttons
-- **Community mesh** - Cascade alerts to neighboring farms (15km radius)
-- **Edge devices** - Trigger physical deterrents (ultrasonic, strobe, siren)
-
-### 🌍 Global Support
-- **Region-aware** - Adapts animal classes by GPS location (Africa, Asia, Americas, Europe, Oceania, MENA)
-- **Multilingual** - Alerts in English, Hindi, Swahili, Spanish, Portuguese, Arabic
-- **Behavior analysis** - Charging, stalking, grazing, at fence, fleeing, resting
-- **Severity scoring** - 1-10 scale with configurable thresholds
-
-## 🏗️ Architecture
+## How It Works
 
 ```
-Camera Feed → YOLO Detection → PAWS Pipeline → AWS Nova Analysis → Alerts → Dashboard
-                                      ↓
-                              Real-time SSE Stream
-                                      ↓
-                        Embeddings Similarity Search
-                                      ↓
-                     Community Mesh + Edge Deterrents
+Camera (HLS/RTSP) ──► Modal.com T4 GPU ──► YOLO-World Detection ──► Amazon Nova Lite Analysis
+                          │                        │                          │
+                     Bounding Boxes            Webhook to Backend         Severity Score
+                     drawn on stream           with frame sequence        + Behavior Report
+                                                      │
+                                    ┌─────────────────┼──────────────────┐
+                                    ▼                  ▼                  ▼
+                              ntfy.sh Push      Telegram Bot       Community Mesh
+                              Notification      (with photos       (15km radius
+                                                + feedback)        farm-to-farm)
 ```
 
-### The 14-Step Pipeline
+**Pipeline steps:** Gate → Debounce → DB Write → Nova Lite Vision → Nova Embed → Similarity Search → Threat Decision → Report Generation → Polly Voice Alert → Alert Dispatch → Mesh Broadcast → Deterrent Trigger → Dataset Archive → Complete
 
-1. **Gate** - Filter dangerous animals by region
-2. **Debounce** - 30s cooldown per camera/animal
-3. **DB Create** - Store incident record
-4. **Nova Lite (Call 1)** - Vision threat analysis
-5. **Nova Embed (Call 2)** - Behavior embedding
-6. **Similarity Search** - Find similar past incidents
-7. **Decision** - Threat/dismiss based on severity
-8. **Nova Report (Call 3)** - Generate incident narrative
-9. **Voice Alert** - Amazon Polly TTS
-10. **Dispatch Alerts** - Ntfy + Telegram
-11. **Mesh Broadcast** - Notify neighboring farms
-12. **Deterrent** - Trigger edge devices
-13. **Dataset Save** - Archive for ML training
-14. **Complete** - Finalize and measure performance
+## Tech Stack
 
-## 🚀 Quick Start
+| Layer | Technology |
+|---|---|
+| **Frontend** | SvelteKit, Tailwind CSS, SSE, lucide-svelte |
+| **Backend** | FastAPI, SQLAlchemy (SQLite), python-dotenv |
+| **Inference** | Modal.com (T4 GPU), YOLO-World v2, OpenCV |
+| **AI Analysis** | Amazon Nova Lite (vision), Nova Embed (similarity), Amazon Polly (TTS) |
+| **Alerts** | ntfy.sh, Telegram Bot API, Amazon SNS (SMS) |
+| **Streaming** | HLS, RTSP, MJPEG, yt-dlp (YouTube resolution) |
+
+## Amazon Nova Models Used
+
+- **Amazon Nova 2 Lite** — Multi-frame vision analysis: identifies animal species, behavior (charging/stalking/grazing), proximity to perimeter, and generates severity scores (1–10)
+- **Amazon Nova Multimodal Embedding** — Encodes detection frames into vectors for similarity search against historical incidents
+- **Amazon Polly** — Converts threat reports into spoken alerts in 6 languages (EN, HI, SW, ES, PT, AR)
+
+## Project Structure
+
+```
+├── config.py                       # Environment config, region-animal mapping
+├── sse.py                          # Server-Sent Events manager
+├── requirements.txt                # Python dependencies
+├── .env.example                    # Template (no secrets)
+│
+├── agents/
+│   ├── pipeline.py                 # 14-step detection pipeline orchestrator
+│   ├── nova_agent.py               # Nova Lite + Polly API calls
+│   ├── alert_agent.py              # ntfy, Telegram, mesh dispatch
+│   ├── dataset_agent.py            # Auto-archive detections for retraining
+│   ├── deterrent_agent.py          # Edge device trigger (ultrasonic/strobe)
+│   ├── nova_sonic_agent.py         # Nova Sonic speech-to-speech (experimental)
+│   └── nova_act_agent.py           # Nova Act browser automation (experimental)
+│
+├── backend_fastapi/
+│   ├── main.py                     # FastAPI server — all API routes, stream mgmt
+│   ├── modal_inference.py          # Modal.com GPU container (YOLO-World)
+│   ├── stream_manager.py           # Camera CRUD (persisted to streams.json)
+│   ├── nova_agent.py               # Nova analysis wrapper
+│   ├── yt_resolver.py              # YouTube → direct URL resolver
+│   └── sse.py                      # SSE event bus
+│
+└── paws-dashboard/                 # SvelteKit frontend
+    └── src/
+        ├── routes/
+        │   ├── +page.svelte        # Landing page
+        │   └── dashboard/
+        │       └── +page.svelte    # Main dashboard
+        └── lib/components/
+            ├── LiveFeedPage.svelte  # Camera feed + inference controls
+            ├── IncidentsPage.svelte # Incident history
+            ├── DashboardLayout.svelte # Navigation + theming
+            ├── MeshPage.svelte     # Community mesh network
+            ├── DatasetPage.svelte  # Training data browser
+            ├── AgentsPage.svelte   # Agent status monitor
+            └── SettingsPage.svelte # Configuration
+```
+
+## Setup
 
 ### Prerequisites
+
 - Python 3.10+
 - Node.js 18+
-- AWS Account (for Nova AI)
+- AWS account with Bedrock access (Nova Lite, Nova Embed, Polly)
+- Modal.com account (free tier works)
 
-### Installation
+### Install & Run
 
 ```bash
-# 1. Clone and navigate
-cd detection
-
-# 2. Install Python dependencies
+# Backend
+cp .env.example .env          # Fill in your AWS keys, Telegram token
 pip install -r requirements.txt
+cd backend_fastapi
+python main.py                # Starts on :8000
 
-# 3. Install Node dependencies
+# Frontend (separate terminal)
 cd paws-dashboard
 npm install
-cd ..
+npm run dev                   # Starts on :5173
 
-# 4. Configure environment
-# .env file already created with demo credentials
-# Update AWS credentials for production use
-
-# 5. Start backend (Terminal 1)
-python main.py
-
-# 6. Start dashboard (Terminal 2)
-cd paws-dashboard
-npm run dev
+# Deploy Modal inference (one-time)
+modal deploy backend_fastapi/modal_inference.py
 ```
 
-### Access
+### Environment Variables
 
-- **Dashboard**: http://localhost:5173
-- **API Docs**: http://localhost:8000/docs
-- **SSE Stream**: http://localhost:8000/api/sse
-- **Ntfy Alerts**: https://ntfy.sh/farmguard_nova_alerts_xyz89
+Copy `.env.example` to `.env` and fill in:
 
-## 🧪 Testing
+| Variable | Required | Description |
+|---|---|---|
+| `AWS_ACCESS_KEY_ID` | Yes | IAM key with Bedrock + Polly access |
+| `AWS_SECRET_ACCESS_KEY` | Yes | IAM secret |
+| `TELEGRAM_BOT_TOKEN` | No | From @BotFather for Telegram alerts |
+| `TELEGRAM_CHAT_IDS` | No | Comma-separated recipient IDs |
+| `NTFY_TOPIC` | No | Custom ntfy.sh topic for push alerts |
 
-### Quick Test Script
+## API Endpoints
 
-**Windows (PowerShell):**
-```powershell
-.\test-system.ps1
-```
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/sse` | Real-time pipeline events (SSE) |
+| `GET` | `/api/incidents` | List all incidents |
+| `GET` | `/api/streams` | List camera streams |
+| `POST` | `/api/streams` | Add a camera stream |
+| `DELETE` | `/api/streams/{id}` | Remove a stream |
+| `POST` | `/api/streams/{id}/start` | Start GPU inference |
+| `POST` | `/api/streams/{id}/stop` | Stop GPU inference |
+| `POST` | `/api/simulate/{scenario}` | Trigger test detection |
+| `POST` | `/api/detect` | Webhook for YOLO detections |
+| `POST` | `/api/feedback/{id}` | Human verification |
+| `POST` | `/report_incident` | Modal webhook callback |
 
-**Linux/Mac:**
-```bash
-chmod +x test-system.sh
-./test-system.sh
-```
+## Testing
 
-### Manual Testing
-
-**Run a simulation:**
-```bash
-curl -X POST http://localhost:8000/api/simulate/elephant_charging
-```
-
-**Available scenarios:**
-- `elephant_charging` - High severity, Africa
-- `wolf_europe` - Medium severity, Europe
-- `jaguar_americas` - High severity, Americas
-- `low_severity_grazing` - Low severity, Africa
-
-**Watch the dashboard** to see the 14-step pipeline execute in real-time!
-
-## 📁 Project Structure
+Add a stream in the dashboard using this public elephant camera:
 
 ```
-detection/
-├── main.py                    # FastAPI app (all endpoints)
-├── config.py                  # Centralized configuration
-├── sse.py                     # Real-time event streaming
-├── requirements.txt           # Python dependencies
-├── .env                       # Environment variables
-├── paws_v12.db               # SQLite database
-├── SETUP.md                  # Detailed setup guide
-├── TESTING.md                # Comprehensive test checklist
-├── models/
-│   └── incident.py           # Database schema
-├── agents/
-│   ├── pipeline.py           # 14-step detection flow
-│   ├── nova_agent.py         # AWS Nova + Polly calls
-│   ├── alert_agent.py        # Ntfy + Telegram alerts
-│   ├── dataset_agent.py      # Dataset archival
-│   └── deterrent_agent.py    # Edge device control
-├── paws-dashboard/
-│   └── src/
-│       ├── routes/
-│       │   └── +page.svelte  # Main dashboard
-│       └── lib/
-│           ├── api.ts        # Typed API client
-│           └── components/
-│               ├── TraceLog.svelte      # Live pipeline trace
-│               ├── IncidentCard.svelte  # Expandable incidents
-│               └── StatsBar.svelte      # System metrics
-└── static/
-    └── test_images/          # Simulation images
+https://elephants.hls.camzonecdn.com/CamzoneStreams/elephants/Playlist.m3u8
 ```
 
-## 🔌 API Endpoints
+Click **Start Inference** — Modal spins up a T4 GPU container, runs YOLO-World detection, draws bounding boxes on the live feed, and sends webhook callbacks to the backend when elephants are detected. The full 14-step Nova pipeline executes automatically.
 
-### Detection
-- `POST /api/detect` - Webhook for YOLO detections
-- `POST /api/simulate/{scenario}` - Trigger test scenarios
+## License
 
-### Incidents
-- `GET /api/incidents` - List all incidents (limit 50)
-- `GET /api/incidents/{id}/voice` - Voice alert audio (base64 MP3)
-- `GET /api/incidents/{id}/report` - Full incident report
-
-### Monitoring
-- `GET /api/stats` - System statistics
-- `GET /api/sse` - Server-sent events stream
-
-### Feedback
-- `POST /api/feedback/{id}` - Human verification (confirmed/false_positive)
-- `POST /api/telegram/webhook` - Telegram bot callback handler
-
-## ⚙️ Configuration
-
-### Environment Variables (.env)
-
-```bash
-# AWS (Required for Nova AI)
-AWS_ACCESS_KEY_ID=your_key
-AWS_SECRET_ACCESS_KEY=your_secret
-AWS_DEFAULT_REGION=us-east-1
-
-# Farm Location (GPS coordinates)
-FARM_LAT=27.7
-FARM_LON=85.3
-FARM_LANGUAGE=en
-
-# Alert Channels (Free)
-NTFY_TOPIC=farmguard_nova_alerts_xyz89
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_IDS=123456789,987654321
-
-# Thresholds
-ALERT_SEVERITY_THRESHOLD=4
-DETERRENT_SEVERITY_THRESHOLD=6
-AUTHORITY_SEVERITY_THRESHOLD=8
-```
-
-### Severity Thresholds
-
-- **1-3**: Grazing far from perimeter (log only)
-- **4-6**: Near perimeter (send alerts)
-- **7-9**: At fence/aggressive behavior (trigger deterrents)
-- **10**: Breaching perimeter (notify authorities)
-
-## 🌐 Community Mesh
-
-PAWS includes a decentralized farm alert network:
-
-1. **Subscribe to regional mesh**: `paws-mesh-{region}` (e.g., `paws-mesh-asia`)
-2. **Automatic broadcasts**: High-severity threats (7+) alert farms within 15km
-3. **Privacy-preserving**: Only shares threat type, severity, approximate GPS
-4. **Ntfy-based**: No central server required
-
-**Join the mesh:**
-```bash
-# Subscribe to your region
-# Visit: https://ntfy.sh/paws-mesh-asia
-```
-
-## 📊 Monitoring & Metrics
-
-**System Stats:**
-- Total detections
-- Threats confirmed vs dismissed
-- Average pipeline latency
-- Nova API call count
-- Service health (Nova Lite, Embeddings, Ntfy, Telegram)
-- System uptime
-
-**Performance Benchmarks:**
-- With AWS: 2-5 seconds per detection
-- Without AWS (fallback): < 1 second
-- SSE latency: < 100ms per event
-- Database: Handles 10k+ incidents
-
-## 🔧 Troubleshooting
-
-### AWS Credentials
-**Issue**: `UnrecognizedClientException`
-
-**Solution**: Update `.env` with valid AWS credentials. Ensure IAM permissions for:
-- `bedrock-runtime:InvokeModel` (Nova Lite, Nova Embed)
-- `polly:SynthesizeSpeech` (Voice alerts)
-
-### Encoding Error (FIXED)
-**Issue**: `'ascii' codec can't encode character...`
-
-**Status**: ✅ Fixed in `alert_agent.py` with UTF-8 safe header handling
-
-### Database Migration
-**Issue**: 500 error on `/api/incidents`
-
-**Status**: ✅ Migrated to `paws_v12.db` with correct Nova columns
-
-### SSE Connection Drops
-**Issue**: Dashboard loses real-time updates
-
-**Solution**: Check CORS middleware (already configured). SSE includes 30s heartbeat.
-
-## 🚀 Production Deployment
-
-### Checklist
-- [ ] Update AWS credentials to production keys
-- [ ] Set `PUBLIC_BASE_URL` to production domain
-- [ ] Enable HTTPS (required for SSE in production)
-- [ ] Configure Telegram bot webhook
-- [ ] Set up edge devices (Raspberry Pi + deterrents)
-- [ ] Enable Modal GPU inference for real cameras
-- [ ] Migrate from SQLite to PostgreSQL (optional)
-- [ ] Set up CloudWatch monitoring
-- [ ] Configure reverse proxy (nginx)
-
-### Scaling
-- **Horizontal**: Run multiple PAWS instances with load balancer
-- **Vertical**: Increase AWS Bedrock quotas for Nova models
-- **Edge**: Deploy YOLO inference to Raspberry Pi / NVIDIA Jetson
-- **Database**: PostgreSQL for multi-instance deployments
-
-## 🤝 Contributing
-
-We welcome contributions! Areas for improvement:
-
-1. **Mobile App** - React Native app for farmers
-2. **Fine-tuning** - Region-specific YOLO models
-3. **ML Training Loop** - Continuous learning from human feedback
-4. **Edge Inference** - Optimize for Raspberry Pi
-5. **Additional Alerts** - SMS, WhatsApp, voice calls
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 🙏 Acknowledgments
-
-- **AWS Nova AI** - Multimodal vision and embeddings
-- **Ntfy.sh** - Free, open-source push notifications
-- **SvelteKit** - Reactive dashboard framework
-- **FastAPI** - High-performance Python web framework
-
----
-
-**Built with ❤️ for farmers worldwide**
-
-*Protecting livelihoods, preserving wildlife, enabling coexistence.*
-
-## 📞 Support
-
-- **Issues**: Open a GitHub issue
-- **Documentation**: See `SETUP.md` and `TESTING.md`
-- **API Docs**: http://localhost:8000/docs
-
----
-
-**Version**: 1.1.0  
-**Last Updated**: March 2026  
-**Status**: ✅ Production Ready (pending AWS credentials)
+MIT
