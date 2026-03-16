@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-03-16T17:31:29.261394",
+  "label": "elephant",
+  "confidence": 0.9233385920524597,
+  "bbox": null,
+  "category": "confirmed_threat",
+  "region": "default",
+  "nova_severity": 5,
+  "nova_behavior": "at_fence",
+  "embedding_dims": 0
+}

@@ -1,0 +1,48 @@
+# Environment & Secrets
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node / Frontend
+node_modules/
+.svelte-kit/
+.vite/
+
+# IDE
+.cursor/
+.agents/
+.vscode/
+*.swp
+*.swo
+
+# Runtime data
+*.db
+*.sqlite3
+streams.json
+tunnel.log
+tunnel_err.log
+tunnel_output.txt
+modal_deploy_error.txt
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Model weights (large files)
+*.pt
+runs/
+detections/
+
+# Binaries
+cloudflared.exe
