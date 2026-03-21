@@ -1,5 +1,10 @@
 {
   "buildCommand": "cd paws-dashboard && npm install && npm run build",
   "outputDirectory": "paws-dashboard/.svelte-kit",
-  "framework": "sveltekit"
+  "framework": "sveltekit",
+  "build": {
+    "env": {
+      "NODE_VERSION": "20"
+    }
+  }
 }
