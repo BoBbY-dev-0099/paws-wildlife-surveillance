@@ -319,15 +319,6 @@ def release_gpu(key: str):
             GPU_LOCK.release()
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # dev only
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
 state: Dict[str, Any] = {
     "running": False,
     "started_at": None,
