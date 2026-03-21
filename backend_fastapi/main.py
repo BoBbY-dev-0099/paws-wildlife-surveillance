@@ -132,12 +132,17 @@ def _start_cloudflared_tunnel(local_port: int = 8000) -> str:
 # Resolve public URL at import time
 def get_public_url():
     global PUBLIC_WEBHOOK_BASE
-    if not PUBLIC_WEBHOOK_BASE or "localhost" in PUBLIC_WEBHOOK_BASE:
+    if not PUBLIC_WEBHOOK_BASE:
+        # If no explicit webhook base, try cloudflared
         PUBLIC_WEBHOOK_BASE = _start_cloudflared_tunnel(local_port=8000)
     return PUBLIC_WEBHOOK_BASE
 
-get_public_url()
-print(f"🔗 Webhook base URL: {PUBLIC_WEBHOOK_BASE}", flush=True)
+# Only try to start tunnel if PUBLIC_WEBHOOK_BASE is not already set
+if PUBLIC_WEBHOOK_BASE:
+    print(f"🔗 Webhook base URL (from env): {PUBLIC_WEBHOOK_BASE}", flush=True)
+else:
+    get_public_url()
+    print(f"🔗 Webhook base URL (from tunnel): {PUBLIC_WEBHOOK_BASE}", flush=True)
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "").strip()
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "").strip()
