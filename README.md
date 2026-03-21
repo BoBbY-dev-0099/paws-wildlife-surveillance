@@ -118,6 +118,41 @@ Copy `.env.example` to `.env` and fill in:
 | `TELEGRAM_CHAT_IDS` | No | Comma-separated recipient IDs |
 | `NTFY_TOPIC` | No | Custom ntfy.sh topic for push alerts |
 
+### Telegram Bot Setup (Optional)
+
+To receive detection alerts via Telegram with inline photos and feedback buttons:
+
+1. **Create a bot:**
+   - Open Telegram and message [@BotFather](https://t.me/BotFather)
+   - Send `/newbot` and follow the prompts
+   - Save the bot token (looks like `1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`)
+
+2. **Get your chat ID:**
+   - Message [@userinfobot](https://t.me/userinfobot) on Telegram
+   - It will reply with your chat ID (e.g., `123456789`)
+
+3. **Configure PAWS:**
+   ```bash
+   # Add to .env
+   TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+   TELEGRAM_CHAT_IDS=123456789
+   ```
+
+4. **Start your bot:**
+   - Open a chat with your bot on Telegram
+   - Send `/start` to activate it
+
+5. **Test it:**
+   - Trigger a detection in PAWS
+   - You'll receive a message with the detected animal photo, severity score, and two buttons:
+     - ✅ **Confirmed threat** — marks detection as real, adds to training dataset
+     - ❌ **False alarm** — marks as false positive for model improvement
+
+**For multiple recipients:** Use comma-separated chat IDs:
+```bash
+TELEGRAM_CHAT_IDS=123456789,987654321,555666777
+```
+
 ## API Endpoints
 
 | Method | Path | Description |
