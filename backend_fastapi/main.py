@@ -34,15 +34,15 @@ except (ImportError, OSError):
     YOLO = None
 
 
-from stream_manager import load_streams, add_stream, update_stream, delete_stream, get_stream_by_id
+from backend_fastapi.stream_manager import load_streams, add_stream, update_stream, delete_stream, get_stream_by_id
 
 
 # -----------------------------
 # SSE Manager for Real-time Updates
 # -----------------------------
 # Import the SSE manager used by the pipeline
-from sse import nova_sse
-from yt_resolver import is_youtube, resolve_youtube_to_direct_url
+from backend_fastapi.sse import nova_sse
+from backend_fastapi.yt_resolver import is_youtube, resolve_youtube_to_direct_url
 
 
 
