@@ -16,7 +16,7 @@
   
   async function fetchIncidentCount() {
     try {
-      const res = await fetch('${API_BASE_URL}/api/incidents');
+      const res = await fetch(`${API_BASE_URL}/api/incidents`);
       if (res.ok) {
         const data = await res.json();
         incidentCount = data.length;

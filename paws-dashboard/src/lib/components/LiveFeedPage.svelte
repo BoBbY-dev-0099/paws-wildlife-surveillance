@@ -48,7 +48,7 @@
   
   async function loadCameras() {
     try {
-      const res = await fetch('${API_BASE_URL}/api/streams');
+      const res = await fetch(`${API_BASE_URL}/api/streams`);
       if (res.ok) {
         cameras = await res.json();
         if (!selectedCamera && cameras.length > 0) {
@@ -218,7 +218,7 @@
     
     isSavingStream = true;
     try {
-      const res = await fetch('${API_BASE_URL}/api/streams', {
+      const res = await fetch(`${API_BASE_URL}/api/streams`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(streamForm)
@@ -275,7 +275,7 @@
   
   async function fetchIncidents() {
     try {
-      const res = await fetch('${API_BASE_URL}/api/incidents');
+      const res = await fetch(`${API_BASE_URL}/api/incidents`);
       if (res.ok) {
         const data = await res.json();
         incidents = data;
@@ -305,7 +305,7 @@
       eventSource.close();
     }
     
-    eventSource = new EventSource('${API_BASE_URL}/api/sse');
+    eventSource = new EventSource(`${API_BASE_URL}/api/sse`);
     
     eventSource.addEventListener('pipeline', (event) => {
       console.log('📊 Pipeline event raw:', event.data);

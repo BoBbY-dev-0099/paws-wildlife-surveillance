@@ -10,7 +10,7 @@
   async function fetchIncidents() {
     loading = true;
     try {
-      const res = await fetch('${API_BASE_URL}/api/incidents');
+      const res = await fetch(`${API_BASE_URL}/api/incidents`);
       if (res.ok) {
         incidents = await res.json();
       }
