@@ -392,7 +392,7 @@ def close_capture():
 import sqlite3
 import base64
 from datetime import datetime
-from nova_agent import analyze_incident_with_nova
+from backend_fastapi.nova_agent import analyze_incident_with_nova
 
 def background_nova_alert(frame: np.ndarray, phone: str, label: str, conf: float, image_list: Optional[List[np.ndarray]] = None, source_model: str = "unknown"):
     # Encode frame to jpeg bytes for primary
